@@ -1,10 +1,10 @@
-#ParameterFiddler
+# ParameterFiddler
 
 The parameterfiddler allows to modify parameters and compare results. It was written to improve bots on [CodinGame](https://www.codingame.com/).
 
 Note: making a bot stronger against itself doesn't necessarily mean, that it performs better in the arena as well.
 
-##How it works
+## How it works
 
 This program will modify one parameter at a time: for a given delta, it will test the outcome of multiplying the parameter by
 (1+delta) and (1-delta). With these 3 points (together with not changing the parameter at all, what is assumed to give a 50%
@@ -17,7 +17,7 @@ The best parameters found so far will be in the passed parameter file, replacing
 
 It is also possible to fight against several bots. In that case the average winrate will be taken to evaluate a parameter change.
 
-##Usage
+## Usage
 
 To use this program, you first need the [cg-brutaltester](https://github.com/dreignier/cg-brutaltester)
 and a referee ([ghost in the cell](https://github.com/dreignier/cg-referee-ghost-in-the-cell),
