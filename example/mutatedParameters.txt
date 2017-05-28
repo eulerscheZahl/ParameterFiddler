@@ -1,0 +1,1 @@
+private static int rank = 2; //this value shall be modified
