@@ -20,6 +20,8 @@ public class ParameterFiddler implements Observer {
     private static int rounds = 1;
     private static int threads = 1;
     private static double delta = 0.3;
+    private static boolean verbose = false;
+    private static boolean veryVerbose = false;
 
     public ParameterFiddler() throws IOException {
         ArrayList<Parameter> parameters = new ArrayList<Parameter>();
@@ -29,7 +31,7 @@ public class ParameterFiddler implements Observer {
         }
         Runner runner = new Runner(toImprove, opponents,
                 parameters, brutaltester, refereeCommand,
-                rounds, threads, delta);
+                rounds, threads, delta, veryVerbose);
         runner.addObserver(this);
         Thread thread = new Thread(runner);
         thread.start();
@@ -45,6 +47,8 @@ public class ParameterFiddler implements Observer {
                     .addOption("opponents", true, "bots to play against, seperated by ;")
                     .addOption("n", true, "games to play")
                     .addOption("t", true, "threads to use")
+                    .addOption("v", false, "print game results")
+                    .addOption("vv", false, "print everything")
                     .addOption("delta", true, "parameter mutation range");
             CommandLine cmd = new DefaultParser().parse(options, args);
 
@@ -64,6 +68,12 @@ public class ParameterFiddler implements Observer {
             for (String opp : cmd.getOptionValue("opponents").split(";")) {
                 parts = opp.split(":");
                 opponents.add(new Bot(parts[0], parts[1]));
+            }
+            if (cmd.hasOption("v")) {
+                verbose = true;
+            }
+            if (cmd.hasOption("vv")) {
+                veryVerbose = true;
             }
 
             try {
@@ -94,8 +104,10 @@ public class ParameterFiddler implements Observer {
 
         ConcurrentLinkedQueue<String> brutaltesterQueue = r.getBrutaltesterQueue();
         while (brutaltesterQueue.size() > 0) {
-            brutaltesterQueue.poll();
-            //System.out.println(brutaltesterQueue.poll());
+            String line = brutaltesterQueue.poll();
+            if (verbose) {
+                System.out.println(line);
+            }
         }
 
         ConcurrentLinkedQueue<String> parameterFiddlerQueue = r.getParameterFiddlerQueue();

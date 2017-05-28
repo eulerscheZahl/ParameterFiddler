@@ -23,10 +23,11 @@ class Runner extends Observable implements Runnable {
     private int rounds;
     private int threads;
     private double delta;
+    private boolean verbose;
     private ConcurrentLinkedQueue<String> brutaltesterQueue = new ConcurrentLinkedQueue<String>();
     private ConcurrentLinkedQueue<String> parameterFiddlerQueue = new ConcurrentLinkedQueue<String>();
 
-    public Runner(Bot toImprove, ArrayList<Bot> opponents, ArrayList<Parameter> parameters, String brutaltesterPath, String refereeCommand, int rounds, int threads, double delta) {
+    public Runner(Bot toImprove, ArrayList<Bot> opponents, ArrayList<Parameter> parameters, String brutaltesterPath, String refereeCommand, int rounds, int threads, double delta, boolean verbose) {
         this.toImprove = toImprove;
         this.opponents = opponents;
         this.parameters = parameters;
@@ -35,6 +36,7 @@ class Runner extends Observable implements Runnable {
         this.rounds = rounds;
         this.threads = threads;
         this.delta = delta;
+        this.verbose = verbose;
     }
 
     private void writeParameters(ArrayList<Parameter> parameters, String filename) {
@@ -79,6 +81,9 @@ class Runner extends Observable implements Runnable {
             args.add(opponent.getRunCommand());
             args.add("-t" + threads);
             args.add("-n" + rounds);
+            if (verbose) {
+                args.add("-v");
+            }
 
             ProcessBuilder pb = new ProcessBuilder(args);
             parameterFiddlerQueue.add(new Date() + ": executing: " + pb.command());
@@ -95,20 +100,20 @@ class Runner extends Observable implements Runnable {
             }
 
             try {
+                BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                String s;
+                while ((s = stdInput.readLine()) != null) {
+                    output.add(s);
+                    brutaltesterQueue.add(s);
+                    this.setChanged();
+                    this.notifyObservers();
+                }
                 p.waitFor();
             } catch (InterruptedException ex) {
                 parameterFiddlerQueue.add("process stopped unexpectedly: " + ex);
                 this.setChanged();
                 this.notifyObservers();
                 return Double.NaN;
-            }
-            BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String s;
-            while ((s = stdInput.readLine()) != null) {
-                output.add(s);
-                brutaltesterQueue.add(s);
-                this.setChanged();
-                this.notifyObservers();
             }
 
             for (int i = 0; i < output.size(); i++) {
