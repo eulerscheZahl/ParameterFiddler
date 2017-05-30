@@ -63,11 +63,12 @@ class Runner extends Observable implements Runnable {
         double losses = 0;
         for (Bot opponent : opponents) {
             //I will most likely win 50% against myself, no need wo waste CPU
-            if (sameValue && toImprove.getParamFile().equals(opponent.getParamFile())) {
+            //too many draws that are counted as win change the results too much
+            /*if (sameValue && toImprove.getParamFile().equals(opponent.getParamFile())) {
                 wins += 0.5 * rounds;
                 losses += 0.5 * rounds;
                 continue;
-            }
+            }*/
 
             ArrayList<String> args = new ArrayList<String>();
             args.add("java");

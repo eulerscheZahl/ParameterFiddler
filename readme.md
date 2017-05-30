@@ -23,7 +23,8 @@ To use this program, you first need the [cg-brutaltester](https://github.com/dre
 and a referee ([ghost in the cell](https://github.com/dreignier/cg-referee-ghost-in-the-cell),
 [coders of the caribbean](https://github.com/KevinBusse/cg-referee-coders-of-the-caribbean),
 [code4life](https://github.com/KevinBusse/cg-referee-code4life),
-[smash the code](https://github.com/eulerscheZahl/SmashTheCodeReferee/))
+[smash the code](https://github.com/eulerscheZahl/SmashTheCodeReferee/),
+[HyperSonic](https://github.com/eulerscheZahl/HyperSonicReferee/))
 
 Furthermore you have to prepare your program to read variables from a file passed as command line argument (see example folder).
 
