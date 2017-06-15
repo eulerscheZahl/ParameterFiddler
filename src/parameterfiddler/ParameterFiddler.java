@@ -41,6 +41,7 @@ public class ParameterFiddler implements Observer {
         try {
             Options options = new Options();
             options.addOption("h", false, "help")
+                    .addOption("gui", false, "run in GUI mode")
                     .addOption("brutaltester", true, "path to brutaltester .jar file")
                     .addOption("r", true, "referee run command, e.g. -r \"java -jar cotc-referee.jar\"")
                     .addOption("bot", true, "runcommand:paramfile, e.g. -bot \"./bot.exe:params.txt\"")
@@ -52,6 +53,11 @@ public class ParameterFiddler implements Observer {
                     .addOption("delta", true, "parameter mutation range");
             CommandLine cmd = new DefaultParser().parse(options, args);
 
+            if (cmd.hasOption("gui")) {
+                FiddlerGUI gui = new FiddlerGUI();
+                gui.setVisible(true);
+                return;
+            }
             if (cmd.hasOption("h") || !cmd.hasOption("brutaltester") || !cmd.hasOption("r") || !cmd.hasOption("bot") || !cmd.hasOption("opponents")) {
                 new HelpFormatter().printHelp("-brutaltester <path to brutaltester> "
                         + "-r <referee command line>"

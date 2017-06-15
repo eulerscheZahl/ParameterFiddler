@@ -20,11 +20,11 @@ It is also possible to fight against several bots. In that case the average winr
 ## Usage
 
 To use this program, you first need the [cg-brutaltester](https://github.com/dreignier/cg-brutaltester)
-and a referee ([ghost in the cell](https://github.com/dreignier/cg-referee-ghost-in-the-cell),
-[coders of the caribbean](https://github.com/KevinBusse/cg-referee-coders-of-the-caribbean),
-[code4life](https://github.com/KevinBusse/cg-referee-code4life),
-[smash the code](https://github.com/eulerscheZahl/SmashTheCodeReferee/),
-[HyperSonic](https://github.com/eulerscheZahl/HyperSonicReferee/))
+and a referee:
+* [ghost in the cell](https://github.com/dreignier/cg-referee-ghost-in-the-cell)
+* [coders of the caribbean](https://github.com/KevinBusse/cg-referee-coders-of-the-caribbean)
+* [code4life](https://github.com/KevinBusse/cg-referee-code4life),
+* [Smash The Code, HyperSonic, Back To The Code, Game Of Drones](https://github.com/eulerscheZahl/RefereeCollection)
 
 Furthermore you have to prepare your program to read variables from a file passed as command line argument (see example folder).
 
