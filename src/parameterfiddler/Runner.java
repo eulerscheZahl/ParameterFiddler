@@ -15,17 +15,17 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 class Runner extends Observable implements Runnable {
 
-    private Bot toImprove;
-    private ArrayList<Bot> opponents;
-    private ArrayList<Parameter> parameters = new ArrayList<Parameter>();
-    private String brutaltesterPath;
-    private String refereeCommand;
-    private int rounds;
-    private int threads;
-    private double delta;
-    private boolean verbose;
-    private ConcurrentLinkedQueue<String> brutaltesterQueue = new ConcurrentLinkedQueue<String>();
-    private ConcurrentLinkedQueue<String> parameterFiddlerQueue = new ConcurrentLinkedQueue<String>();
+    private final Bot toImprove;
+    private final ArrayList<Bot> opponents;
+    private final ArrayList<Parameter> parameters;
+    private final String brutaltesterPath;
+    private final String refereeCommand;
+    private final int rounds;
+    private final int threads;
+    private final double delta;
+    private final boolean verbose;
+    private final ConcurrentLinkedQueue<String> brutaltesterQueue = new ConcurrentLinkedQueue<String>();
+    private final ConcurrentLinkedQueue<String> parameterFiddlerQueue = new ConcurrentLinkedQueue<String>();
 
     public Runner(Bot toImprove, ArrayList<Bot> opponents, ArrayList<Parameter> parameters, String brutaltesterPath, String refereeCommand, int rounds, int threads, double delta, boolean verbose) {
         this.toImprove = toImprove;
@@ -37,6 +37,10 @@ class Runner extends Observable implements Runnable {
         this.threads = threads;
         this.delta = delta;
         this.verbose = verbose;
+    }
+
+    public ArrayList<Parameter> getParameters() {
+        return parameters;
     }
 
     private void writeParameters(ArrayList<Parameter> parameters, String filename) {
@@ -62,14 +66,6 @@ class Runner extends Observable implements Runnable {
         double wins = 0;
         double losses = 0;
         for (Bot opponent : opponents) {
-            //I will most likely win 50% against myself, no need wo waste CPU
-            //too many draws that are counted as win change the results too much
-            /*if (sameValue && toImprove.getParamFile().equals(opponent.getParamFile())) {
-                wins += 0.5 * rounds;
-                losses += 0.5 * rounds;
-                continue;
-            }*/
-
             ArrayList<String> args = new ArrayList<String>();
             args.add("java");
             args.add("-jar");
@@ -172,8 +168,12 @@ class Runner extends Observable implements Runnable {
     private void mutateBot() throws IOException {
         for (int i = 0; i < parameters.size(); i++) {
             Parameter original = parameters.get(i);
+            original.setTestActive(true);
+            setParameter(parameters, i, original);
             Parameter left = original.mutate(1 - delta);
+            left.setTestActive(true);
             Parameter right = original.mutate(1 + delta);
+            right.setTestActive(true);
             if (left != null && right != null) {
                 //run battles to get winrates
                 double vm = original.getValue();
@@ -206,13 +206,6 @@ class Runner extends Observable implements Runnable {
                     }
                 }
 
-                //interpolation, no extrapolation
-                if (x > vr) {
-                    x = vr;
-                }
-                if (x < vl) {
-                    x = vl;
-                }
                 if (!original.isFloat()) {
                     double xOld = x;
                     x = Math.round(x);
@@ -238,6 +231,7 @@ class Runner extends Observable implements Runnable {
                 }
                 if (x != vm && x != vr && x != vl) {
                     Parameter maxParam = original.mutate(x / vm);
+                    maxParam.setTestActive(true);
                     setParameter(parameters, i, maxParam);
                     double maxWinrate = runBot(parameters, false);
                     if (maxWinrate > bestWinrate) {
@@ -246,6 +240,8 @@ class Runner extends Observable implements Runnable {
                     }
                 }
                 setParameter(parameters, i, bestParam);
+                bestParam.setBestValue(String.valueOf(bestParam.getValue()));
+                bestParam.setTestActive(false);
                 writeParameters(parameters, toImprove.getParamFile());
             }
         }

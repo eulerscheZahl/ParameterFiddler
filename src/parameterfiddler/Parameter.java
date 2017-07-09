@@ -7,9 +7,14 @@ class Parameter {
 
     private String codeLine;
     private static final Pattern valuePattern = Pattern.compile("(?<![\\w_\\-])\\d+(\\.?\\d*)?(e\\-?\\d+)?");
+    private String initialValue;
+    private String bestValue;
+    private boolean testActive = false;
 
     public Parameter(String codeLine) {
         this.codeLine = codeLine;
+        this.initialValue = extractValue();
+        this.bestValue = this.initialValue;
     }
 
     private String extractValue() {
@@ -50,11 +55,47 @@ class Parameter {
                 }
             }
         }
-        return new Parameter(codeLine.replace(valueString, isFloat() ? String.valueOf(newValue) : String.valueOf((int) newValue)));
+
+        Parameter result = new Parameter(codeLine.replace(valueString, isFloat() ? String.valueOf(newValue) : String.valueOf((int) newValue)));
+        result.initialValue = this.initialValue;
+        result.bestValue = this.bestValue;
+        return result;
     }
 
     @Override
     public String toString() {
         return codeLine;
+    }
+
+    String getName() {
+        String result = codeLine;
+        String match = extractValue();
+        if (match != null) {
+            result = result.substring(0, result.indexOf(match));
+        }
+        return result;
+    }
+
+    String getInitalValue() {
+        return initialValue;
+    }
+
+    String getBestValue() {
+        return bestValue;
+    }
+
+    public void setBestValue(String bestValue) {
+        this.bestValue = bestValue;
+    }
+
+    public void setTestActive(boolean testActive) {
+        this.testActive = testActive;
+    }
+
+    String getTestingValue() {
+        if (!testActive) {
+            return "";
+        }
+        return extractValue();
     }
 }

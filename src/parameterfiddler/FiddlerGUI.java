@@ -1,19 +1,19 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package parameterfiddler;
 
-/**
- *
- * @author eulerschezahl
- */
-public class FiddlerGUI extends javax.swing.JFrame {
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
 
-    /**
-     * Creates new form FiddlerGUI
-     */
+public class FiddlerGUI extends javax.swing.JFrame implements Observer {
+
     public FiddlerGUI() {
         initComponents();
     }
@@ -50,15 +50,21 @@ public class FiddlerGUI extends javax.swing.JFrame {
         textboxThreads = new javax.swing.JTextField();
         jSeparator7 = new javax.swing.JSeparator();
         buttonRun = new javax.swing.JButton();
+        jSplitPane1 = new javax.swing.JSplitPane();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        tableOpponents = new javax.swing.JTable();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tableParameters = new javax.swing.JTable();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         textareaParameterchanges = new javax.swing.JTextArea();
         jScrollPane3 = new javax.swing.JScrollPane();
         textareaBrutaltester = new javax.swing.JTextArea();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("ParameterFiddler");
@@ -137,25 +143,72 @@ public class FiddlerGUI extends javax.swing.JFrame {
 
         buttonRun.setText("RUN");
         buttonRun.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        buttonRun.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonRunActionPerformed(evt);
+            }
+        });
         jPanel1.add(buttonRun);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.PAGE_START);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
+        jPanel2.setPreferredSize(new java.awt.Dimension(310, 68));
+        jPanel2.setLayout(new java.awt.BorderLayout());
+
+        jLabel2.setText("opponents");
+        jPanel4.add(jLabel2);
+
+        jButton1.setText("add");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jPanel4.add(jButton1);
+
+        jPanel2.add(jPanel4, java.awt.BorderLayout.PAGE_START);
+
+        tableOpponents.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null}
+            },
+            new String [] {
+                "Bot", "Parameter File"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        tableOpponents.setName(""); // NOI18N
+        jScrollPane4.setViewportView(tableOpponents);
+
+        jPanel2.add(jScrollPane4, java.awt.BorderLayout.CENTER);
+
+        jPanel3.add(jPanel2, java.awt.BorderLayout.EAST);
+
+        tableParameters.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
             },
             new String [] {
                 "Parameter", "old value", "new value", "testing"
             }
         ));
-        jTable1.setEnabled(false);
-        jScrollPane1.setViewportView(jTable1);
+        tableParameters.setEnabled(false);
+        jScrollPane1.setViewportView(tableParameters);
 
-        getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
+        jPanel3.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        jSplitPane1.setTopComponent(jPanel3);
 
         textareaParameterchanges.setColumns(20);
         textareaParameterchanges.setRows(5);
@@ -169,60 +222,79 @@ public class FiddlerGUI extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("brutaltester", jScrollPane3);
 
-        getContentPane().add(jTabbedPane1, java.awt.BorderLayout.SOUTH);
+        jSplitPane1.setBottomComponent(jTabbedPane1);
 
-        jLabel1.setText("opponents");
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(41, 41, 41)
-                .addComponent(jLabel1)
-                .addContainerGap(465, Short.MAX_VALUE))
-        );
-
-        getContentPane().add(jPanel2, java.awt.BorderLayout.LINE_END);
+        getContentPane().add(jSplitPane1, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-         */
+    private void buttonRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonRunActionPerformed
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
+            String brutaltester = textboxTester.getText();
+            String refereeCommand = textboxReferee.getText();
+            String[] parts = new String[]{textboxBot.getText(), textboxParameters.getText()};
+            Bot toImprove = new Bot(parts[0], parts[1]);
+            ArrayList<Bot> opponents = new ArrayList<Bot>();
+            DefaultTableModel opponentModel = (DefaultTableModel) tableOpponents.getModel();
+            for (int opp = 0; opp < opponentModel.getRowCount(); opp++) {
+                String botName = (String) opponentModel.getValueAt(opp, 0);
+                String botParams = (String) opponentModel.getValueAt(opp, 1);
+                if (!botName.equals("")) {
+                    opponents.add(new Bot(botName, botParams));
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FiddlerGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FiddlerGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FiddlerGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FiddlerGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+            int rounds = Integer.parseInt(textboxRuns.getText());
+            int threads = Integer.parseInt(textboxThreads.getText());
+            double delta = Double.parseDouble(textboxDelta.getText());
+            ArrayList<Parameter> parameters = new ArrayList<Parameter>();
+            List<String> lines = Files.readAllLines(Paths.get(toImprove.getParamFile()), Charset.forName("UTF-8"));
+            for (String line : lines) {
+                parameters.add(new Parameter(line));
+            }
+            Runner runner = new Runner(toImprove, opponents,
+                    parameters, brutaltester, refereeCommand,
+                    rounds, threads, delta, false);
 
-        /* Create and display the form */
+            runner.addObserver(this);
+            Thread thread = new Thread(runner);
+
+            thread.start();
+        } catch (Exception ex) {
+            Logger.getLogger(FiddlerGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_buttonRunActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        ((DefaultTableModel) tableOpponents.getModel()).addRow(new String[]{"", ""});
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Runner r = (Runner) o;
+        boolean updateTable = false;
+
+        ConcurrentLinkedQueue<String> brutaltesterQueue = r.getBrutaltesterQueue();
+        while (brutaltesterQueue.size() > 0) {
+            textareaBrutaltester.append(brutaltesterQueue.poll() + "\n");
+        }
+
+        ConcurrentLinkedQueue<String> parameterFiddlerQueue = r.getParameterFiddlerQueue();
+        while (parameterFiddlerQueue.size() > 0) {
+            textareaParameterchanges.append(parameterFiddlerQueue.poll() + "\n");
+            updateTable = true;
+        }
+
+        if (updateTable) {
+            DefaultTableModel table = (DefaultTableModel) tableParameters.getModel();
+            table.setNumRows(0);
+            for (Parameter p : r.getParameters()) {
+                table.addRow(new String[]{p.getName(), p.getInitalValue(), p.getBestValue(), p.getTestingValue()});
+            }
+        }
+    }
+
+    public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new FiddlerGUI().setVisible(true);
@@ -232,12 +304,16 @@ public class FiddlerGUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonRun;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
@@ -245,8 +321,8 @@ public class FiddlerGUI extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator5;
     private javax.swing.JSeparator jSeparator7;
     private javax.swing.JSeparator jSeparator8;
+    private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JLabel labelBot;
     private javax.swing.JLabel labelDelta;
     private javax.swing.JLabel labelParameters;
@@ -254,6 +330,8 @@ public class FiddlerGUI extends javax.swing.JFrame {
     private javax.swing.JLabel labelRuns;
     private javax.swing.JLabel labelTester;
     private javax.swing.JLabel labelThreads;
+    private javax.swing.JTable tableOpponents;
+    private javax.swing.JTable tableParameters;
     private javax.swing.JTextArea textareaBrutaltester;
     private javax.swing.JTextArea textareaParameterchanges;
     private javax.swing.JTextField textboxBot;

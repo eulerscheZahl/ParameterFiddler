@@ -10,6 +10,7 @@ If they contain a `:`, `float`, `double`, they are treated as doubles, as intege
 
 # Running the fiddler
 
+## Command line
 Assuming that all files are in the same folder, you can start the program as follows:
 `java -jar ParameterFiddler.jar -brutaltester cg-brutaltester.jar -r "java -jar cg-c4l.jar" -bot "./c4ldummy.exe:parameters.txt" -opponents "./c4ldummy.exe:parameters.txt" -n1000 -t4`
 First, brutaltester and referee are passed.
@@ -22,3 +23,7 @@ The sample bot plays code4life, but isn't very smart.
 Initially it starts with rank1 samples, but later on takes rank2 instead.
 However starting with rank2 at only 3 expertise is a bit early.
 So the parameter fiddler should increase that value to about 9 or 10 when running for some minutes.
+
+## GUI
+Start the fiddler with `java -jar ParameterFiddler.jar -gui`, there is no need to pass the bots and referee via command line.
+![Screenshot](gui.png)
