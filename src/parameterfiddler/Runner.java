@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Observable;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import javafx.util.Pair;
 
 class Runner extends Observable implements Runnable {
 
@@ -58,9 +59,27 @@ class Runner extends Observable implements Runnable {
         }
     }
 
-    private double runBot(ArrayList<Parameter> parameters, boolean sameValue) throws IOException {
+    ArrayList<Pair<String, Double>> cache = new ArrayList<Pair<String, Double>>();
+    int cacheSize = 5;
+
+    private double runBot(ArrayList<Parameter> parameters) throws IOException {
+        while (cache.size() > cacheSize) {
+            cache.remove(0);
+        }
+        String key = "";
+        for (Parameter p : parameters) {
+            key += p.getTestingValue() + ":" + p.getBestValue() + "|";
+        }
+        parameterFiddlerQueue.add("    key: " + key);
+        for (int i = 0; i < cache.size(); i++) {
+            if (cache.get(i).getKey().equals(key)) {
+                //just to fill the cache and remove older entries
+                cache.add(new Pair<String, Double>("", 0.0));
+                return cache.get(i).getValue();
+            }
+        }
+
         writeParameters(parameters, "mutatedParameters.txt");
-        ArrayList<String> output = new ArrayList<String>();
 
         //run battles
         double wins = 0;
@@ -100,8 +119,19 @@ class Runner extends Observable implements Runnable {
                 BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
                 String s;
                 while ((s = stdInput.readLine()) != null) {
-                    output.add(s);
                     brutaltesterQueue.add(s);
+                    if (s.contains("End of game ")) {
+                        String winners = s.substring(s.indexOf("End of game"));
+                        winners = winners.substring(winners.indexOf(": ") + 2);
+                        if (winners.contains(" ")) {
+                            winners = winners.substring(0, winners.indexOf(" "));
+                        }
+                        if (winners.contains("0")) {
+                            wins++;
+                        } else {
+                            losses++;
+                        }
+                    }
                     this.setChanged();
                     this.notifyObservers();
                 }
@@ -112,28 +142,12 @@ class Runner extends Observable implements Runnable {
                 this.notifyObservers();
                 return Double.NaN;
             }
-
-            for (int i = 0; i < output.size(); i++) {
-                if (output.get(i).contains("Position 1")) {
-                    String tmp = output.get(i);
-                    tmp = tmp.substring(tmp.indexOf("Position 1") + 13);
-                    tmp = tmp.substring(0, tmp.indexOf(" "));
-                    int currentWins = Integer.parseInt(tmp);
-                    tmp = output.get(i + 1);
-                    tmp = tmp.substring(tmp.indexOf("Position 2") + 13);
-                    tmp = tmp.substring(0, tmp.indexOf(" "));
-                    int currentLosses = Integer.parseInt(tmp);
-                    parameterFiddlerQueue.add(new Date() + ": result " + currentWins + ":" + currentLosses);
-                    this.setChanged();
-                    this.notifyObservers();
-                    wins += currentWins;
-                    losses += currentLosses;
-                    break;
-                }
-            }
-            output.clear();
         }
+        parameterFiddlerQueue.add(new Date() + ": result " + wins + ":" + losses);
+        this.setChanged();
+        this.notifyObservers();
 
+        cache.add(new Pair<String, Double>(key, wins / (wins + losses)));
         return wins / (wins + losses);
     }
 
@@ -174,76 +188,75 @@ class Runner extends Observable implements Runnable {
             left.setTestActive(true);
             Parameter right = original.mutate(1 + delta);
             right.setTestActive(true);
-            if (left != null && right != null) {
-                //run battles to get winrates
-                double vm = original.getValue();
-                double wm = runBot(parameters, true);
-                setParameter(parameters, i, left);
-                double vl = left.getValue();
-                double wl = runBot(parameters, false);
-                setParameter(parameters, i, right);
-                double vr = right.getValue();
-                double wr = runBot(parameters, false);
 
-                //solve equation system to get parameter value with maximum winrate (assuming parabola)
-                double det = vl * vl * vm + vl * vr * vr + vm * vm * vr - vl * vl * vr - vm * vm * vl - vr * vr * vm;
-                double det1 = wl * vm + vl * wr + wm * vr - wl * vr - wm * vl - wr * vm;
-                double det2 = vl * vl * wm + wl * vr * vr + vm * vm * wr - vl * vl * wr - vm * vm * wl - vr * vr * wm;
-                double det3 = vl * vl * vm * wr + vl * vr * vr * wm + vm * vm * vr * wl - vl * vl * vr * wm - vm * vm * vl * wr - vr * vr * vm * wl;
+            //run battles to get winrates
+            double vm = original.getValue();
+            double wm = runBot(parameters);
+            setParameter(parameters, i, left);
+            double vl = left.getValue();
+            double wl = runBot(parameters);
+            setParameter(parameters, i, right);
+            double vr = right.getValue();
+            double wr = runBot(parameters);
 
-                double a = det1 / det;
-                double b = det2 / det;
-                double c = det3 / det;
-                double x = -b / (2 * a);
+            //solve equation system to get parameter value with maximum winrate (assuming parabola)
+            double det = vl * vl * vm + vl * vr * vr + vm * vm * vr - vl * vl * vr - vm * vm * vl - vr * vr * vm;
+            double det1 = wl * vm + vl * wr + wm * vr - wl * vr - wm * vl - wr * vm;
+            double det2 = vl * vl * wm + wl * vr * vr + vm * vm * wr - vl * vl * wr - vm * vm * wl - vr * vr * wm;
+            double det3 = vl * vl * vm * wr + vl * vr * vr * wm + vm * vm * vr * wl - vl * vl * vr * wm - vm * vm * vl * wr - vr * vr * vm * wl;
 
-                //result gets better in both directions? strange
-                //TODO: parameter so far off, that tuning has no effect? -> warning message
-                if (a > 0) {
-                    if (wl > wr) {
-                        x = vl;
-                    } else {
-                        x = vr;
-                    }
-                }
+            double a = det1 / det;
+            double b = det2 / det;
+            double c = det3 / det;
+            double x = -b / (2 * a);
 
-                if (!original.isFloat()) {
-                    double xOld = x;
-                    x = Math.round(x);
-                    if (x == vm) {
-                        if (xOld < vm) {
-                            x--;
-                        }
-                        if (xOld > vm) {
-                            x++;
-                        }
-                    }
+            //result gets better in both directions? strange
+            //TODO: parameter so far off, that tuning has no effect? -> warning message
+            if (a > 0) {
+                if (wl > wr) {
+                    x = vl;
+                } else {
+                    x = vr;
                 }
-
-                Parameter bestParam = original;
-                double bestWinrate = wm;
-                if (wl > bestWinrate) {
-                    bestWinrate = wl;
-                    bestParam = left;
-                }
-                if (wr > bestWinrate) {
-                    bestWinrate = wr;
-                    bestParam = right;
-                }
-                if (x != vm && x != vr && x != vl) {
-                    Parameter maxParam = original.mutate(x / vm);
-                    maxParam.setTestActive(true);
-                    setParameter(parameters, i, maxParam);
-                    double maxWinrate = runBot(parameters, false);
-                    if (maxWinrate > bestWinrate) {
-                        bestWinrate = maxWinrate;
-                        bestParam = maxParam;
-                    }
-                }
-                setParameter(parameters, i, bestParam);
-                bestParam.setBestValue(String.valueOf(bestParam.getValue()));
-                bestParam.setTestActive(false);
-                writeParameters(parameters, toImprove.getParamFile());
             }
+
+            if (!original.isFloat()) {
+                double xOld = x;
+                x = Math.round(x);
+                if (x == vm) {
+                    if (xOld < vm) {
+                        x--;
+                    }
+                    if (xOld > vm) {
+                        x++;
+                    }
+                }
+            }
+
+            Parameter bestParam = original;
+            double bestWinrate = wm;
+            if (wl > bestWinrate) {
+                bestWinrate = wl;
+                bestParam = left;
+            }
+            if (wr > bestWinrate) {
+                bestWinrate = wr;
+                bestParam = right;
+            }
+            if (x != vm && x != vr && x != vl) {
+                Parameter maxParam = original.mutate(x / vm);
+                maxParam.setTestActive(true);
+                setParameter(parameters, i, maxParam);
+                double maxWinrate = runBot(parameters);
+                if (maxWinrate > bestWinrate) {
+                    bestWinrate = maxWinrate;
+                    bestParam = maxParam;
+                }
+            }
+            setParameter(parameters, i, bestParam);
+            bestParam.setBestValue(String.valueOf(bestParam.getValue()));
+            bestParam.setTestActive(false);
+            writeParameters(parameters, toImprove.getParamFile());
         }
     }
 }

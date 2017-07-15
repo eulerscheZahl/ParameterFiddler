@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 public class FiddlerGUI extends javax.swing.JFrame implements Observer {
@@ -102,7 +101,7 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
         jPanel1.add(labelParameters);
 
         textboxParameters.setColumns(10);
-        textboxParameters.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        textboxParameters.setHorizontalAlignment(javax.swing.JTextField.LEFT);
         jPanel1.add(textboxParameters);
 
         jSeparator2.setPreferredSize(new java.awt.Dimension(5, 0));
@@ -261,7 +260,7 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
 
             thread.start();
         } catch (Exception ex) {
-            Logger.getLogger(FiddlerGUI.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, ex.toString(), "parsing error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_buttonRunActionPerformed
 
