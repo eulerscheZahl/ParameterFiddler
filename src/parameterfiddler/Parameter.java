@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 class Parameter {
 
     private String codeLine;
-    private static final Pattern valuePattern = Pattern.compile("(?<![\\w_\\-])\\d+(\\.?\\d*)?(e\\-?\\d+)?");
+    private static final Pattern valuePattern = Pattern.compile("(?<![\\w_\\-\\d])-?\\d+(\\.?\\d*)?(e\\-?\\d+)?");
     private String initialValue;
     private String bestValue;
     private boolean testActive = false;
@@ -23,6 +23,10 @@ class Parameter {
             return m.group();
         }
         return null;
+    }
+
+    public boolean hasValue() {
+        return extractValue() != null;
     }
 
     public double getValue() {
@@ -47,16 +51,16 @@ class Parameter {
         double newValue = oldValue * factor;
         if (!this.isFloat()) {
             newValue = Math.round(newValue);
-            if (oldValue == newValue) {
-                if (factor > 1) {
-                    newValue++;
-                } else {
-                    newValue--;
-                }
+        }
+        if (oldValue == newValue) {
+            if (factor > 1) {
+                newValue++;
+            } else {
+                newValue--;
             }
         }
 
-        Parameter result = new Parameter(codeLine.replace(valueString, isFloat() ? String.valueOf(newValue) : String.valueOf((int) newValue)));
+        Parameter result = new Parameter(codeLine.replaceFirst(valuePattern.toString(), isFloat() ? String.valueOf(newValue) : String.valueOf((int) newValue)));
         result.initialValue = this.initialValue;
         result.bestValue = this.bestValue;
         return result;

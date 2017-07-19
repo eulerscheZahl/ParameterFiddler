@@ -70,7 +70,6 @@ class Runner extends Observable implements Runnable {
         for (Parameter p : parameters) {
             key += p.getTestingValue() + ":" + p.getBestValue() + "|";
         }
-        parameterFiddlerQueue.add("    key: " + key);
         for (int i = 0; i < cache.size(); i++) {
             if (cache.get(i).getKey().equals(key)) {
                 //just to fill the cache and remove older entries
@@ -128,7 +127,8 @@ class Runner extends Observable implements Runnable {
                         }
                         if (winners.contains("0")) {
                             wins++;
-                        } else {
+                        }
+                        if (winners.contains("1")) {
                             losses++;
                         }
                     }
@@ -182,6 +182,9 @@ class Runner extends Observable implements Runnable {
     private void mutateBot() throws IOException {
         for (int i = 0; i < parameters.size(); i++) {
             Parameter original = parameters.get(i);
+            if (!original.hasValue()) {
+                continue;
+            }
             original.setTestActive(true);
             setParameter(parameters, i, original);
             Parameter left = original.mutate(1 - delta);

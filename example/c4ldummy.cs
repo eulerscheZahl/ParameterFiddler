@@ -10,19 +10,25 @@ class Solution {
 	static int rank = 3; //this value shall be modified
 
 	static void Main(string[] args) {
-		Regex regex = new Regex (@"(?<![\w_\-])\d+(\.?\d*)?(e\-?\d+)?");
+		//regex to find numbers in the parameter file - you may just do a string split depending on how your file looks like
+		Regex regex = new Regex (@"(?<![\w_\-\d])-?\d+(\.?\d*)?(e\-?\d+)?");
+		//is a parameter file passed via command line argument?
 		if (args.Length == 1) {
+			//read all lines from the file
 			string[] lines = File.ReadAllLines (args [0]);
 			foreach (string line in lines) {
 				if (!regex.IsMatch (line))
-					continue;
+					continue; //no number found
 				double value = double.Parse (regex.Matches (line) [0].ToString(), CultureInfo.InvariantCulture);
+				//if the line contains "rank", store the value in the rank variable
 				if (line.Contains ("rank")) {
 					rank = (int)value;
 				}
 			}
 		}
-
+		
+		// here goes the c4l bot
+		// not relevant for the fiddler, just to have a working example
 		string[] inputs;
 		int projectCount = int.Parse (Console.ReadLine ());
 		for (int i = 0; i < projectCount; i++) {
