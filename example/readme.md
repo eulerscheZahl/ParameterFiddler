@@ -17,7 +17,7 @@ First, brutaltester and referee are passed.
 Then the `-bot` to optimize is specified. In that case c4ldummy.exe, reading from parameters.txt.
 As opponent, the same command is used, meaning that the bot fights itself.
 This is done on 4 threads, with 1000 rounds.
-Additionally you can define a `-delta` to chose how much a parameter can change in a sinlge run (default is 0.3).
+Additionally you can define a `-delta` to chose how much a parameter can change in a single run (default is 0.3).
 
 The sample bot plays code4life, but isn't very smart.
 Initially it starts with rank1 samples, but later on takes rank2 instead.

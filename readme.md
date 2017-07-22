@@ -23,7 +23,7 @@ To use this program, you first need the [cg-brutaltester](https://github.com/dre
 and a referee:
 * [Ghost in the Cell](https://github.com/dreignier/cg-referee-ghost-in-the-cell)
 * [Coders of the Caribbean](https://github.com/KevinBusse/cg-referee-coders-of-the-caribbean)
-* [Code4Kife](https://github.com/KevinBusse/cg-referee-code4life)
+* [Code4Life](https://github.com/KevinBusse/cg-referee-code4life)
 * [Wondev Woman](https://github.com/KevinBusse/cg-referee-wondev-woman)
 * [Coders Strike Back](https://github.com/robostac/coders-strike-back-referee)
 * [Back To The Code, CodeBusters, Game Of Drones, HyperSonic, Smash The Code, The Great Escape, Tron](https://github.com/eulerscheZahl/RefereeCollection)
