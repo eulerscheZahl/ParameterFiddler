@@ -20,6 +20,8 @@ public class ParameterFiddler implements Observer {
     private static int rounds = 1;
     private static int threads = 1;
     private static double delta = 0.3;
+    private static int players = 2;
+    private static boolean swap = false;
     private static boolean verbose = false;
     private static boolean veryVerbose = false;
 
@@ -31,7 +33,7 @@ public class ParameterFiddler implements Observer {
         }
         Runner runner = new Runner(toImprove, opponents,
                 parameters, brutaltester, refereeCommand,
-                rounds, threads, delta, veryVerbose);
+                rounds, threads, delta, veryVerbose, swap, players);
         runner.addObserver(this);
         Thread thread = new Thread(runner);
         thread.start();
@@ -48,6 +50,8 @@ public class ParameterFiddler implements Observer {
                     .addOption("opponents", true, "bots to play against, seperated by ;")
                     .addOption("n", true, "games to play")
                     .addOption("t", true, "threads to use")
+                    .addOption("p", true, "number of players")
+                    .addOption("s", false, "swap players")
                     .addOption("v", false, "print game results")
                     .addOption("vv", false, "print everything")
                     .addOption("delta", true, "parameter mutation range");
@@ -63,7 +67,7 @@ public class ParameterFiddler implements Observer {
                         + "-r <referee command line>"
                         + "-bot <bot run command:params.txt path>"
                         + "-opponents <bot1:param1;bot2:param2;...>"
-                        + "[-n <games> -t <thread> -delta <parameter mutation range>]", options);
+                        + "[-n <games> -t <thread> -delta <parameter mutation range> -s -p <players>]", options);
                 System.exit(0);
             }
 
@@ -74,6 +78,9 @@ public class ParameterFiddler implements Observer {
             for (String opp : cmd.getOptionValue("opponents").split(";")) {
                 parts = opp.split(":");
                 opponents.add(new Bot(parts[0], parts[1]));
+            }
+            if (cmd.hasOption("s")) {
+                swap = true;
             }
             if (cmd.hasOption("v")) {
                 verbose = true;
@@ -89,6 +96,11 @@ public class ParameterFiddler implements Observer {
             }
             try {
                 threads = Integer.valueOf(cmd.getOptionValue("t"));
+            } catch (Exception exception) {
+                //use default number of threads
+            }
+            try {
+                players = Integer.valueOf(cmd.getOptionValue("s"));
             } catch (Exception exception) {
                 //use default number of threads
             }

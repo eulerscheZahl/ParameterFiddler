@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 class Parameter {
 
     private String codeLine;
-    private static final Pattern valuePattern = Pattern.compile("(?<![\\w_\\-\\d])-?\\d+(\\.?\\d*)?(e\\-?\\d+)?");
+    private static final Pattern valuePattern = Pattern.compile("(?<![\\w_\\-\\d])-?\\d+(\\.?\\d*)?([eE]\\-?\\d+)?");
     private String initialValue;
     private String bestValue;
     private boolean testActive = false;

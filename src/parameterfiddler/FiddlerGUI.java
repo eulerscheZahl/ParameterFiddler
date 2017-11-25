@@ -48,6 +48,9 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
         labelThreads = new javax.swing.JLabel();
         textboxThreads = new javax.swing.JTextField();
         jSeparator7 = new javax.swing.JSeparator();
+        labelPlayers = new javax.swing.JLabel();
+        textboxPlayers = new javax.swing.JTextField();
+        checkBoxSwap = new javax.swing.JCheckBox();
         buttonRun = new javax.swing.JButton();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel3 = new javax.swing.JPanel();
@@ -82,7 +85,7 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
         jPanel1.add(labelReferee);
 
         textboxReferee.setColumns(10);
-        textboxReferee.setText("java -jar cg-c4l.jar");
+        textboxReferee.setText("java -jar cg-mm.jar");
         jPanel1.add(textboxReferee);
 
         jSeparator1.setPreferredSize(new java.awt.Dimension(5, 0));
@@ -92,6 +95,7 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
         jPanel1.add(labelBot);
 
         textboxBot.setColumns(10);
+        textboxBot.setText("./MeanMax.exe");
         jPanel1.add(textboxBot);
 
         jSeparator5.setPreferredSize(new java.awt.Dimension(5, 0));
@@ -102,6 +106,7 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
 
         textboxParameters.setColumns(10);
         textboxParameters.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        textboxParameters.setText("params.txt");
         jPanel1.add(textboxParameters);
 
         jSeparator2.setPreferredSize(new java.awt.Dimension(5, 0));
@@ -140,6 +145,18 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
         jSeparator7.setPreferredSize(new java.awt.Dimension(10, 0));
         jPanel1.add(jSeparator7);
 
+        labelPlayers.setText("players:");
+        jPanel1.add(labelPlayers);
+
+        textboxPlayers.setColumns(3);
+        textboxPlayers.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        textboxPlayers.setText("3");
+        jPanel1.add(textboxPlayers);
+
+        checkBoxSwap.setSelected(true);
+        checkBoxSwap.setText("swap");
+        jPanel1.add(checkBoxSwap);
+
         buttonRun.setText("RUN");
         buttonRun.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         buttonRun.addActionListener(new java.awt.event.ActionListener() {
@@ -173,7 +190,7 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
 
         tableOpponents.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null}
+                {"./MeanMax.exe", "params.txt"}
             },
             new String [] {
                 "Bot", "Parameter File"
@@ -245,6 +262,8 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
             }
             int rounds = Integer.parseInt(textboxRuns.getText());
             int threads = Integer.parseInt(textboxThreads.getText());
+            int players = Integer.parseInt(textboxPlayers.getText());
+            boolean swap = checkBoxSwap.isSelected();
             double delta = Double.parseDouble(textboxDelta.getText());
             ArrayList<Parameter> parameters = new ArrayList<Parameter>();
             List<String> lines = Files.readAllLines(Paths.get(toImprove.getParamFile()), Charset.forName("UTF-8"));
@@ -253,7 +272,7 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
             }
             Runner runner = new Runner(toImprove, opponents,
                     parameters, brutaltester, refereeCommand,
-                    rounds, threads, delta, false);
+                    rounds, threads, delta, false, swap, players);
 
             runner.addObserver(this);
             Thread thread = new Thread(runner);
@@ -303,6 +322,7 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonRun;
+    private javax.swing.JCheckBox checkBoxSwap;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
@@ -325,6 +345,7 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JLabel labelBot;
     private javax.swing.JLabel labelDelta;
     private javax.swing.JLabel labelParameters;
+    private javax.swing.JLabel labelPlayers;
     private javax.swing.JLabel labelReferee;
     private javax.swing.JLabel labelRuns;
     private javax.swing.JLabel labelTester;
@@ -336,6 +357,7 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JTextField textboxBot;
     private javax.swing.JTextField textboxDelta;
     private javax.swing.JTextField textboxParameters;
+    private javax.swing.JTextField textboxPlayers;
     private javax.swing.JTextField textboxReferee;
     private javax.swing.JTextField textboxRuns;
     private javax.swing.JTextField textboxTester;

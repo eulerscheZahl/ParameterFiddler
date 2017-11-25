@@ -25,10 +25,12 @@ class Runner extends Observable implements Runnable {
     private final int threads;
     private final double delta;
     private final boolean verbose;
+    private final boolean swap;
+    private final int players;
     private final ConcurrentLinkedQueue<String> brutaltesterQueue = new ConcurrentLinkedQueue<String>();
     private final ConcurrentLinkedQueue<String> parameterFiddlerQueue = new ConcurrentLinkedQueue<String>();
 
-    public Runner(Bot toImprove, ArrayList<Bot> opponents, ArrayList<Parameter> parameters, String brutaltesterPath, String refereeCommand, int rounds, int threads, double delta, boolean verbose) {
+    public Runner(Bot toImprove, ArrayList<Bot> opponents, ArrayList<Parameter> parameters, String brutaltesterPath, String refereeCommand, int rounds, int threads, double delta, boolean verbose, boolean swap, int players) {
         this.toImprove = toImprove;
         this.opponents = opponents;
         this.parameters = parameters;
@@ -38,6 +40,8 @@ class Runner extends Observable implements Runnable {
         this.threads = threads;
         this.delta = delta;
         this.verbose = verbose;
+        this.swap = swap;
+        this.players = players;
     }
 
     public ArrayList<Parameter> getParameters() {
@@ -92,12 +96,17 @@ class Runner extends Observable implements Runnable {
             args.add("\"" + refereeCommand + "\"");
             args.add("-p1");
             args.add(toImprove.getRunCommand("mutatedParameters.txt"));
-            args.add("-p2");
-            args.add(opponent.getRunCommand());
+            for (int p = 2; p <= players; p++) {
+                args.add("-p" + p);
+                args.add(opponent.getRunCommand());
+            }
             args.add("-t" + threads);
             args.add("-n" + rounds);
             if (verbose) {
                 args.add("-v");
+            }
+            if (swap) {
+                args.add("-s");
             }
 
             ProcessBuilder pb = new ProcessBuilder(args);
@@ -120,16 +129,29 @@ class Runner extends Observable implements Runnable {
                 while ((s = stdInput.readLine()) != null) {
                     brutaltesterQueue.add(s);
                     if (s.contains("End of game ")) {
-                        String winners = s.substring(s.indexOf("End of game"));
-                        winners = winners.substring(winners.indexOf(": ") + 2);
-                        if (winners.contains(" ")) {
-                            winners = winners.substring(0, winners.indexOf(" "));
+                        String ranking = s.substring(s.indexOf("End of game"));
+                        ranking = ranking.substring(ranking.indexOf(": ") + 2);
+                        String[] parts = ranking.replace("\t", " ").split(" ");
+                        int botIndex = 0;
+                        while (!parts[botIndex].contains("0")) {
+                            botIndex++;
                         }
-                        if (winners.contains("0")) {
-                            wins++;
-                        }
-                        if (winners.contains("1")) {
-                            losses++;
+                        int totalLength = 0;
+                        for (int i = 0; i < parts.length; i++) {
+                            if (i < botIndex) {
+                                losses += parts[i].length();
+                            }
+                            if (i > botIndex) {
+                                wins += parts[i].length();
+                            }
+                            if (i == botIndex) {
+                                wins += 0.5 * (parts[i].length() - 1);
+                                losses += 0.5 * (parts[i].length() - 1);
+                            }
+                            totalLength += parts[i].length();
+                            if (totalLength >= players) { //don't parse win percentages
+                                break;
+                            }
                         }
                     }
                     this.setChanged();
@@ -142,10 +164,10 @@ class Runner extends Observable implements Runnable {
                 this.notifyObservers();
                 return Double.NaN;
             }
+            parameterFiddlerQueue.add(new Date() + ": result " + wins + ":" + losses);
+            this.setChanged();
+            this.notifyObservers();
         }
-        parameterFiddlerQueue.add(new Date() + ": result " + wins + ":" + losses);
-        this.setChanged();
-        this.notifyObservers();
 
         cache.add(new Pair<String, Double>(key, wins / (wins + losses)));
         return wins / (wins + losses);
