@@ -16,7 +16,7 @@ public class ParameterFiddler implements Observer {
     private static String brutaltester;
     private static String refereeCommand;
     private static Bot toImprove;
-    private static ArrayList<Bot> opponents = new ArrayList<Bot>();
+    private static ArrayList<Bot> opponents = new ArrayList<>();
     private static int rounds = 1;
     private static int threads = 1;
     private static double delta = 0.3;
@@ -26,7 +26,7 @@ public class ParameterFiddler implements Observer {
     private static boolean veryVerbose = false;
 
     public ParameterFiddler() throws IOException {
-        ArrayList<Parameter> parameters = new ArrayList<Parameter>();
+        ArrayList<Parameter> parameters = new ArrayList<>();
         List<String> lines = Files.readAllLines(Paths.get(toImprove.getParamFile()), Charset.forName("UTF-8"));
         for (String line : lines) {
             parameters.add(new Parameter(line));
@@ -64,9 +64,9 @@ public class ParameterFiddler implements Observer {
             }
             if (cmd.hasOption("h") || !cmd.hasOption("brutaltester") || !cmd.hasOption("r") || !cmd.hasOption("bot") || !cmd.hasOption("opponents")) {
                 new HelpFormatter().printHelp("-brutaltester <path to brutaltester> "
-                        + "-r <referee command line>"
-                        + "-bot <bot run command:params.txt path>"
-                        + "-opponents <bot1:param1;bot2:param2;...>"
+                        + "-r <referee command line> "
+                        + "-bot <bot run command:params.txt path> "
+                        + "-opponents <bot1:param1;bot2:param2;...> "
                         + "[-n <games> -t <thread> -delta <parameter mutation range> -s -p <players>]", options);
                 System.exit(0);
             }
