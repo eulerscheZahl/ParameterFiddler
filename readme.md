@@ -30,3 +30,9 @@ and a referee:
 
 Furthermore you have to prepare your program to read variables from a file passed as command line argument (see example folder).
 
+## Compiling
+
+To compile this program, use maven; Installation instructions can be found [here](https://maven.apache.org/install.html)
+
+Once maven is installed, run `mvn package`. This will create a file in  `target/` called `uber-parameterfiddler-X.Y.jar`
+This can then be invoked as given in the [example](./example/readme.md) 
