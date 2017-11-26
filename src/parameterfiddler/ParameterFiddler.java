@@ -100,7 +100,7 @@ public class ParameterFiddler implements Observer {
                 //use default number of threads
             }
             try {
-                players = Integer.valueOf(cmd.getOptionValue("s"));
+                players = Integer.valueOf(cmd.getOptionValue("p"));
             } catch (Exception exception) {
                 //use default number of threads
             }
