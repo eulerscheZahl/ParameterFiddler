@@ -1,5 +1,10 @@
 package parameterfiddler;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -7,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -15,6 +21,25 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
 
     public FiddlerGUI() {
         initComponents();
+
+        Properties prop = new Properties();
+        InputStream input = null;
+
+        try {
+
+            input = new FileInputStream("config.properties");
+            prop.load(input);
+
+            textboxTester.setText(prop.getProperty("brutaltester"));
+            textboxReferee.setText(prop.getProperty("refereeCommand"));
+            textboxRuns.setText(prop.getProperty("rounds"));
+            textboxPlayers.setText(prop.getProperty("players"));
+            textboxThreads.setText(prop.getProperty("threads"));
+            textboxDelta.setText(prop.getProperty("delta"));
+            checkBoxSwap.setSelected(Boolean.parseBoolean(prop.getProperty("swap")));
+        } catch (IOException ex) {
+            // failed to load config - perfectly normal at least on first start
+        }
     }
 
     /**
@@ -270,6 +295,25 @@ public class FiddlerGUI extends javax.swing.JFrame implements Observer {
             for (String line : lines) {
                 parameters.add(new Parameter(line));
             }
+
+            Properties prop = new Properties();
+            OutputStream output = null;
+
+            try {
+                output = new FileOutputStream("config.properties");
+                prop.setProperty("brutaltester", brutaltester);
+                prop.setProperty("refereeCommand", refereeCommand);
+                prop.setProperty("rounds", String.valueOf(rounds));
+                prop.setProperty("players", String.valueOf(players));
+                prop.setProperty("threads", String.valueOf(threads));
+                prop.setProperty("delta", String.valueOf(delta));
+                prop.setProperty("swap", String.valueOf(swap));
+
+                prop.store(output, null);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, ex.toString(), "failed to save preferences", JOptionPane.ERROR_MESSAGE);
+            }
+
             Runner runner = new Runner(toImprove, opponents,
                     parameters, brutaltester, refereeCommand,
                     rounds, threads, delta, false, swap, players);

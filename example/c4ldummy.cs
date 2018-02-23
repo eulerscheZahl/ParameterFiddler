@@ -11,7 +11,7 @@ class Solution {
 
 	static void Main(string[] args) {
 		//regex to find numbers in the parameter file - you may just do a string split depending on how your file looks like
-		Regex regex = new Regex (@"(?<![\w_\-\d])-?\d+(\.?\d*)?(e\-?\d+)?");
+		Regex regex = new Regex (@"(?<![\w_\-\d])-?\d+(\.?\d*)?([eE]\-?\d+)?");
 		//is a parameter file passed via command line argument?
 		if (args.Length == 1) {
 			//read all lines from the file
