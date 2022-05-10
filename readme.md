@@ -22,9 +22,9 @@ It is also possible to fight against several bots. In that case the average winr
 To use this program, you first need the [cg-brutaltester](https://github.com/dreignier/cg-brutaltester)
 and a referee:
 * [Ghost in the Cell](https://github.com/dreignier/cg-referee-ghost-in-the-cell)
-* [Coders of the Caribbean](https://github.com/KevinBusse/cg-referee-coders-of-the-caribbean)
-* [Code4Life](https://github.com/KevinBusse/cg-referee-code4life)
-* [Wondev Woman](https://github.com/KevinBusse/cg-referee-wondev-woman)
+* [Coders of the Caribbean](https://github.com/kevinsandow/cg-referee-coders-of-the-caribbean)
+* [Code4Life](https://github.com/kevinsandow/cg-referee-code4life)
+* [Wondev Woman](https://github.com/kevinsandow/cg-referee-wondev-woman)
 * [Coders Strike Back](https://github.com/robostac/coders-strike-back-referee)
 * [Back To The Code, CodeBusters, Game Of Drones, HyperSonic, Smash The Code, The Great Escape, Tron](https://github.com/eulerscheZahl/RefereeCollection)
 
